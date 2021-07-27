@@ -36,7 +36,7 @@ def startDeployment(**kwargs):
                             if not uploadData(jsonData,fname,kwargs):
                                 fixture_file_list.insert(0,fname)
                                 file_list_lenght=len(fixture_file_list)
-                                break
+                                print("UnSuccessfully inserted "+jsonData['name']+" to "+jsonData['doctype'])
                     if checkList == fixture_file_list:
                         raise Exception("Unable to deploy the following doctypes "+str(fixture_file_list)+". Reason: Some dependent doctypes could be missing.")
     except Exception as err:
@@ -69,7 +69,6 @@ def uploadData(jsonData,fileName,kwargs):
     elif response.status_code == 409 and response.reason == 'CONFLICT' :
         response = requests.put(api+"/"+urllib.parse.quote(jsonData['name']),headers=headers,data=json.dumps(removeUnwantedKeys(jsonData)),cookies=getCookie(kwargs))
         if response.status_code==417:
-            print(response.status_code)
             return False
         elif response.status_code==200:
             if not 'data' in response.json():
@@ -77,9 +76,9 @@ def uploadData(jsonData,fileName,kwargs):
             print("Successfully updated "+jsonData['doctype']+" doctype with "+jsonData['name'] )
             frappe.logger().info("Successfully updated "+jsonData['doctype']+" doctype with "+jsonData['name'] )
         else:
-            raise Exception("Exception while processing the request. Response code is "+str(response.status_code)+". Reason is "+response.reason)
+            print("Exception while processing the request. Response code is "+str(response.status_code)+". Reason is "+response.reason)
     elif not response.status_code == 200:
-        raise Exception("Exception while processing the request. Response code is "+str(response.status_code)+". Reason is "+response.reason)
+        print("Exception while processing the request. Response code is "+str(response.status_code)+". Reason is "+response.reason)
     return True
 
 def getCookie(kwargs):
